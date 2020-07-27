@@ -6,6 +6,10 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class Racecar : MonoBehaviour
 {
+    //Added code
+    Rigidbody rb;
+
+    //Added code
     #region Set in Unity Editor
     /// <summary>
     /// The cameras through which the user can observe the car.
@@ -95,7 +99,11 @@ public class Racecar : MonoBehaviour
         this.Hud.UpdateMode(this.isDefaultDrive, this.isValidRun);
 
         this.startTime = Time.time;
-        VariableManager.SetKeyTime(VariableManager.KeyTime.Start, this.startTime);
+        GameObject raceManager = GameObject.FindGameObjectWithTag("RaceManager");
+        if (raceManager != null)
+        {
+            raceManager.GetComponent<VariableManager>().SetKeyTime(VariableManager.KeyTime.Start, this.startTime);
+        }
     }
 
     /// <summary>
@@ -183,6 +191,7 @@ public class Racecar : MonoBehaviour
 
     private void Start()
     {
+        rb = GetComponent<Rigidbody>();
         // Begin with main player camera (0th camera)
         this.PlayerCameras[0].enabled = true;
         for (int i = 1; i < this.PlayerCameras.Length; i++)
@@ -283,21 +292,16 @@ public class Racecar : MonoBehaviour
             print("Kachow!");
         }
 
-        // Use the bumpers to adjust max speed
-        if (this.Controller.WasPressed(Controller.Button.RB))
-        {
-            this.Drive.MaxSpeed = Mathf.Min(this.Drive.MaxSpeed + 0.1f, 1);
-        }
-        if (this.Controller.WasPressed(Controller.Button.LB))
-        {
-            this.Drive.MaxSpeed = Mathf.Max(this.Drive.MaxSpeed - 0.1f, 0);
-        }
-
         // If the user moves in default drive mode, it is no longer a valid run
         if (this.isValidRun && this.Drive.Speed != 0)
         {
             this.isValidRun = false;
             this.Hud.UpdateMode(this.isDefaultDrive, this.isValidRun);
         }
+    }
+
+    public Vector3 GetVelocity(){
+        Vector3 velocity = rb.velocity;
+        return velocity;
     }
 }
